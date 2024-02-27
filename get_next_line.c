@@ -3,35 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: myokono <myokono@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: myokono <myokono@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 17:40:04 by myokono           #+#    #+#             */
-/*   Updated: 2024/02/27 20:49:14 by myokono          ###   ########.fr       */
+/*   Updated: 2024/02/27 21:57:37 by myokono          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*extract_line(char *stored)
+char	*extract_line(char **stored)
 {
 	char	*line;
 	int		copy_len;
 	int		i;
 
-	if (ft_strchr(stored, '\n') == NULL)
-		copy_len = ft_strlen(stored);
+	if (ft_strchr(*stored, '\n') == NULL)
+		copy_len = ft_strlen(*stored);
 	else
-		copy_len = ft_strchr(stored, '\n') - stored + 1;
+		copy_len = ft_strchr(*stored, '\n') - *stored + 1;
 	line = malloc(copy_len + 1);
 	if (!line)
 	{
-		free_and_null(&stored);
+		free_and_null(stored);
 		return (NULL);
 	}
 	i = 0;
 	while (i < copy_len)
 	{
-		line[i] = stored[i];
+		line[i] = (*stored)[i];
 		i++;
 	}
 	line[i] = '\0';
@@ -46,7 +46,7 @@ int	update_stored(char **stored)
 	int		cut_len;
 
 	if (ft_strchr(*stored, '\n') == NULL)
-		return (-1);
+		return (0);
 	cut_len = ft_strchr(*stored, '\n') - *stored + 1;
 	new_stored = malloc(ft_strlen(*stored) - cut_len + 1);
 	if (!new_stored)
@@ -64,7 +64,7 @@ int	update_stored(char **stored)
 int	append_read_data(int fd, char **stored, char *buffer)
 {
 	char	*temp;
-	ssize_t		read_len;
+	ssize_t	read_len;
 
 	read_len = 1;
 	while (!ft_strchr(*stored, '\n') && read_len != 0)
@@ -85,7 +85,7 @@ int	append_read_data(int fd, char **stored, char *buffer)
 int	read_and_store(int fd, char **stored)
 {
 	char	*buffer;
-	int flag;
+	int		flag;
 
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
@@ -99,27 +99,24 @@ char	*get_next_line(int fd)
 {
 	static char	*stored;
 	char		*line;
-	int	flag;
+	int			flag;
 
-	if (fd < 0 || BUFFER_SIZE <= 0) // || OPEN_MAX < fd)
+	if (fd < 0 || BUFFER_SIZE <= 0 || OPEN_MAX < fd)
 		return (NULL);
 	flag = read_and_store(fd, &stored);
-	if (flag == -1)
-	{
-		free_and_null (&stored);
-		return (NULL);
-	}
-	else if (flag == 0 && (!stored || *stored == '\0'))
+	if (flag == -1 || (flag == 0 && (!stored || *stored == '\0')))
 	{
 		free_and_null(&stored);
 		return (NULL);
 	}
-	line = extract_line(stored);
+	line = extract_line(&stored);
 	flag = update_stored(&stored);
+	if (flag == -1 || flag == 0)
+		free_and_null(&stored);
 	if (flag == -1)
 	{
-		free_and_null (&stored);
-	
+		free(line);
+		return (NULL);
 	}
 	return (line);
 }

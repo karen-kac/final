@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: myokono <myokono@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: myokono <myokono@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 17:40:07 by myokono           #+#    #+#             */
-/*   Updated: 2024/02/27 20:43:05 by myokono          ###   ########.fr       */
+/*   Updated: 2024/02/27 21:36:12 by myokono          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ char	*ft_strchr(const char *s, int c)
 
 size_t	ft_strlen(const char *str)
 {
-	ssize_t	i;
+	size_t	i;
 
 	i = 0;
 	if (!str)
@@ -63,11 +63,11 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-void	free_and_null(char	**ptr)
+void	free_and_null(char **ptr)
 {
 	if (*ptr)
 	{
-		free (*ptr);
+		free(*ptr);
 		*ptr = NULL;
-	}	
+	}
 }
