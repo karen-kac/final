@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: myokono <myokono@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/15 17:40:04 by myokono           #+#    #+#             */
-/*   Updated: 2024/02/27 22:28:20 by myokono          ###   ########.fr       */
+/*   Created: 2024/02/27 22:34:48 by myokono           #+#    #+#             */
+/*   Updated: 2024/02/27 22:41:13 by myokono          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*extract_line(char **stored)
 {
@@ -97,22 +97,22 @@ static int	read_and_store(int fd, char **stored)
 
 char	*get_next_line(int fd)
 {
-	static char	*stored;
+	static char	*stored[OPEN_MAX + 1];
 	char		*line;
 	int			flag;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || OPEN_MAX < fd)
 		return (NULL);
-	flag = read_and_store(fd, &stored);
-	if (flag == -1 || (flag == 0 && (!stored || *stored == '\0')))
+	flag = read_and_store(fd, &stored[fd]);
+	if (flag == -1 || (flag == 0 && (!stored[fd] || *stored[fd] == '\0')))
 	{
-		free_and_null(&stored);
+		free_and_null(&stored[fd]);
 		return (NULL);
 	}
-	line = extract_line(&stored);
-	flag = update_stored(&stored);
+	line = extract_line(&stored[fd]);
+	flag = update_stored(&stored[fd]);
 	if (flag == -1 || flag == 0)
-		free_and_null(&stored);
+		free_and_null(&stored[fd]);
 	if (flag == -1)
 	{
 		free(line);
@@ -120,31 +120,3 @@ char	*get_next_line(int fd)
 	}
 	return (line);
 }
-
-// #include <fcntl.h>
-// #include <stdio.h>
-// int main()
-// {
-// 	char *test = "";
-// 	int fd = open("test1.txt", O_RDONLY);
-// 	test = get_next_line(fd);
-// 	while (test)
-// 	{
-// 		printf("fd=%s", test);
-// 		free(test);
-// 		test = get_next_line(fd);
-// 	}
-// 	free(test);
-// 	close(fd);
-// }
-
-// __attribute__((destructor))
-// static void destructor() {
-// 	system("leaks -q a.out");
-// }
-// /*
-// cc get_next_line.c get_next_line_uti
-// ls.c get_next_line.h -Wall -Wextra -Werror
-//  -D BUFFER_SIZE=4 && ./a.out |cat -e
-// git clone https://github.com/Tripouille/gnlTester.git
-// */
